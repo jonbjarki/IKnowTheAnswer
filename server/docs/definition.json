@@ -1,0 +1,327 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "I Know the Answer API",
+    "description": "An Express API utilizing socket.io for event-based communication between client and server.",
+    "contact": {
+      "name": "Arnar Leifsson",
+      "email": "arnarl@ru.is"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://spdx.org/licenses/MIT.html"
+    }
+  },
+  "host": "localhost:4567",
+  "schemes": [ "http" ],
+  "paths": {
+    "/register": {
+      "post": {
+        "tags": [ "Authentication" ],
+        "summary": "Registers a new user",
+        "consumes": [ "application/json" ],
+        "responses": {
+          "400": {
+            "description": "Invalid object provided"
+          },
+          "201": {
+            "description": "User was successfully registered"
+          }
+        },
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "UserRegistration object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserRegistration"
+            }
+          }
+        ]
+      }
+    },
+    "/login/password": {
+      "post": {
+        "tags": [ "Authentication" ],
+        "summary": "Logs in a user",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "responses": {
+          "400": {
+            "description": "Invalid object provided"
+          },
+          "200": {
+            "description": "User was successfully logged in",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/User"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "UserLogin object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserLogin"
+            }
+          }
+        ]
+      }
+    },
+    "/logout": {
+      "post": {
+        "tags": [ "Authentication" ],
+        "summary": "Logs out a user",
+        "responses": {
+          "200": {
+            "description": "User was successfully logged out"
+          }
+        }
+      }
+    },
+    "/user/info": {
+      "get": {
+        "tags": [ "Authentication" ],
+        "summary": "Gets user information",
+        "responses": {
+          "200": {
+            "description": "Gets information regarding the logged in user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/matches": {
+      "get": {
+        "tags": [ "Matches" ],
+        "summary": "Gets all matches",
+        "responses": {
+          "200": {
+            "description": "Gets all matches",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Match"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [ "Matches" ],
+        "summary": "Create a new match",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "MatchCreation object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MatchCreation"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Match was successfully created"
+          },
+          "500": {
+            "description": "Match failed to be created"
+          }
+        }
+      }
+    },
+    "/matches/{matchId}": {
+      "get": {
+        "tags": [ "Matches" ],
+        "summary": "Gets all matches",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "matchId",
+            "description": "The id of the match",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gets a single match",
+            "schema": {
+              "$ref": "#/definitions/Match"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UserRegistration": {
+      "type": "object",
+      "required": [ "userName", "displayName", "password" ],
+      "properties": {
+        "userName": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "UserLogin": {
+      "type": "object",
+      "required": [ "userName", "password" ],
+      "properties": {
+        "userName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "An URL for the automatically generated avatar"
+        }
+      }
+    },
+    "MatchCreation": {
+      "type": "object",
+      "required": [ "title", "titleImage", "questions", "owner" ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "titleImage": {
+          "type": "string"
+        },
+        "questions": {
+          "type": "array",
+          "description": "A list of all questions for the match",
+          "items": {
+            "$ref": "#/definitions/Question"
+          }
+        },
+        "owner": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "Match": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "titleImage": {
+          "type": "string"
+        },
+        "questions": {
+          "type": "array",
+          "description": "A list of all questions for the match",
+          "items": {
+            "$ref": "#/definitions/Question"
+          }
+        },
+        "owner": {
+          "$ref": "#/definitions/User"
+        },
+        "answers": {
+          "type": "array",
+          "description": "A list of all submitted answers within the match",
+          "items": {
+            "$ref": "#/definitions/Answer"
+          }
+        },
+        "currentQuestion": {
+          "type": "integer",
+          "description": "The number of the current question"
+        },
+        "players": {
+          "type": "array",
+          "description": "A list of all registered players in the match",
+          "items": {
+            "$ref": "#/definitions/User"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the match",
+          "enum": [ "not-started", "started", "finished" ]
+        }
+      }
+    },
+    "Question": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Option"
+          }
+        }
+      }
+    },
+    "Option": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "correct": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Answer": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "type": "integer",
+          "description": "The question number"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "answer": {
+          "type": "integer",
+          "description": "The answer given"
+        },
+        "secondsLeft": {
+          "type": "integer",
+          "description": "The seconds left when the answer was given"
+        }
+      }
+    }
+  }
+}
