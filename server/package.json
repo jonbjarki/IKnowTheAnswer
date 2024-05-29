@@ -28,6 +28,7 @@
     "swagger-ui-express": "^4.3.0"
   },
   "devDependencies": {
+    "@vanilla-extract/webpack-plugin": "^2.3.7",
     "nodemon": "^2.0.15"
   }
 }

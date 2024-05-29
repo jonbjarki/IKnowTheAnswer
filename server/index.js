@@ -64,6 +64,7 @@ io.on('connection', socket => {
   socket.on('startmatch', async matchId => {
     await startMatch(matchId);
     await setMatchTimer(io, matchId);
+    console.log("Match started");
     io.to(matchId).emit('startmatch');
   });
 
